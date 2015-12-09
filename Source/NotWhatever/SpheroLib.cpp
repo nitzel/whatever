@@ -3,6 +3,24 @@
 #include "NotWhatever.h"
 #include "SpheroLib.h"
 
+USpheroLib::USpheroLib() 
+{
+	// TODO: init here
+	// connect to sphero
 
+	vecRotationRelative = FVector(0, 0, 0);
+}
 
+USpheroLib::~USpheroLib() 
+{
+	// TODO: disconnect/ uninitialize
+}
+void USpheroLib::updateData()
+{
+	vecRotation += FVector(1, 0, 0);
+}
 
+FVector USpheroLib::getRotationVector()
+{
+	return vecRotation - vecRotationRelative;
+}
