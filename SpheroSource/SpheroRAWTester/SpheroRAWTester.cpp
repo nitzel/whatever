@@ -32,6 +32,7 @@
 
 #include <string>
 #include <iostream>
+#include <iomanip>
 #include <cmath>
 
 using namespace std;
@@ -75,17 +76,11 @@ int _tmain(int argc, _TCHAR* argv[])
 
     bool quit = false;
 
-	std::string locator[5] = { "X", "Y", "XS","YS", "SOG" };
 	std::string parameters[42] = { "AccX", "AccY", "AccZ", "giroX", "giroY", "giroZ", "reserved", "reserved", "reserved", "rmbEMF", "lmbEMF", "rmPWM", "lmPWM", "IMUpitch", "IMUroll", "IMUyaw", "AXf", "AYf", "AZf", "giroXfilt", "giroYfilt", "giroZfilt", "reserved", "reserved", "reserved", "rmbEMFfilt", "lmbEMFfilt", "reserved", "reserved", "reserved", "reserved", "reserved", "QO", "Q1", "Q2", "Q3", "odoX", "odoY", "AccelOne", "VeloX", "VeloY", "??VeloZ??" };
-	short speedXYZdefault[3] = { 0, 0, 0 };
-	double speedXYZ[3] = { 0, 0, 0 };
+	double speedDefault[3] = { 0, 0, 0 };
+	double speed[3] = { 0, 0, 0 };
+	short angle[3] = { 0, 0, 0 };
 	bool resetdefault = true;
-
-
-	// If you want to group data together change this value
-	unsigned short const CONCATENATED_DATA_NUMBER = 1;
-	unsigned short countData = 0;
-	MessageData data_store[CONCATENATED_DATA_NUMBER];
 
 
     while(!quit) {
@@ -102,68 +97,45 @@ int _tmain(int argc, _TCHAR* argv[])
             for(auto message : messages) {
 
 				if (message.responseCode == ResponseCode_OK) {
-
-					// If data size equals 10, it should be the read locator
-					if (message.data.size() == 10) {
-						if (countData < CONCATENATED_DATA_NUMBER) {
-							data_store[countData] = message.data;
-							countData++;
+					if (message.idCode == AsyncResponseId_SensorDataStreaming) {
+						// Get the angles from dataStream
+						
+						for (unsigned short i = 0; i < 3; i++) {
+							byte high = message.data[(i + 13) * 2];
+							byte low  = message.data[(i + 13) * 2 + 1];
+							short val = ((high << 8) + low);
+							angle[i] = val;
+							//std::cout << "[" << parameters[i] << ":" << std::dec << val << "]";
 						}
-						else {
-							unsigned short i = 0;
-							for (i = 0; i < 5; i++) {
-								if (i == 0 || i == 1 || i==4) {
-									byte high = data_store[CONCATENATED_DATA_NUMBER-1][i * 2];
-									byte low = data_store[CONCATENATED_DATA_NUMBER-1][i * 2 + 1];
-									short val = ((high << 8) + low);
-									std::cout << "[" << locator[i] << ": " << std::dec << val << "]";
-								}
-								else {
-									unsigned short j = 0;
-									short val = 0;
-									for (j = 0; j < CONCATENATED_DATA_NUMBER; j++) {
-										byte high = message.data[i * 2];
-										byte low = message.data[i * 2 + 1];
-										val += ((high << 8) + low);
-									}
-									std::cout << "[" << locator[i] << ": " << std::dec << val << "]";
-								}
-							}
 
-
-							std::cout << std::endl;
-
-							countData = 0;													
-						}
-					}
-					else if (message.idCode == AsyncResponseId_SensorDataStreaming) {
-
-						unsigned short i = 0;
-						for (i = 16; i < 19; i++) {
-							byte high = message.data[i * 2];
-							byte low = message.data[i * 2 + 1];
+						// Get the accelerometerFiltered from the datastream and kind of get the velocity
+						for (unsigned short i = 0; i < 3; i++) {
+							byte high = message.data[(i + 16) * 2];
+							byte low  = message.data[(i + 16) * 2 + 1];
 							short val = ((high << 8) + low);
 							//std::cout << "[" << parameters[i] << ":" << std::dec << val << "]";
 
 
 							if (resetdefault) { 
-								speedXYZdefault[i - 16] = val; 
+								speedDefault[i] = val; 
 							}
 							else {
-								speedXYZ[i - 16] = (double)(val - speedXYZdefault[i - 16]) * 0.05;
+								//speedDefault[i] = (speedDefault[i]*0.9 - speed[i]*0.1);
+								speed[i] *= 0.6;
+								speed[i] += (double)(val - speedDefault[i]) * 0.05;
 							}
 						}
 
 						if (!resetdefault) {
-							std::cout << "[vX: " << std::dec << speedXYZ[0] << "]";
-							//std::cout << "[vY: " << std::dec << speedXYZ[1] << "]";
-							//std::cout << "[vZ: " << std::dec << speedXYZ[2] << "]";
+							std::cout.precision(2);
+							std::cout << "[vX: " << setw(6) << std::dec << speed[0] << "]";
+							std::cout << "[vY: " << setw(6) << std::dec << speed[1] << "]";
+							std::cout << "[vZ: " << setw(6) << std::dec << speed[2] << "]";
 						}
-						resetdefault = !resetdefault;
+						resetdefault = false;
 
 						std::cout << std::endl;
 
-			
 					}
 					else {
 						std::cout << "[Print] ";
@@ -192,39 +164,23 @@ int _tmain(int argc, _TCHAR* argv[])
 			if (GetAsyncKeyState('A')) {
 				device->setBackLEDOutput(0xff);
 			}
+			// Hide back light
 			if (GetAsyncKeyState('Z')) {
 				device->setBackLEDOutput(0x00);
 			}
 
+			// Set stabilisation off
 			if (GetAsyncKeyState('T')) {
 				device->setStabilisation(false);
-			}
-
-			// Set locator to 0 0
-			if (GetAsyncKeyState('S')) {
-				CommandParameters cp;
-				// FLAGS
-				cp.push_back(0x0);
-				// X
-				cp.push_back(0x0);
-				cp.push_back(0x0);
-				// Y
-				cp.push_back(0x0);
-				cp.push_back(0x0);
-				// YAW TARE
-				cp.push_back(0x0);
-				cp.push_back(0x0);
-
-				device->configureLocator(cp);
 			}
 
 			// Start data stream
 			if (GetAsyncKeyState('G')) {
 				CommandParameters cp;
-				// N
+				// N (frequency = 400Hz / N)
 				cp.push_back(0x0);
 				cp.push_back(0xA);
-				// M
+				// M (number of message at the same time; queuing)
 				cp.push_back(0x0);
 				cp.push_back(0x1);
 				// MASK
@@ -232,7 +188,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				cp.push_back(0xFF);
 				cp.push_back(0xFF);
 				cp.push_back(0xFF);
-				// PCNT
+				// PCNT (Packet count; 0 for infinite)
 				cp.push_back(0x0);
 				//MASK2
 				cp.push_back(0xFF);
@@ -274,8 +230,6 @@ int _tmain(int argc, _TCHAR* argv[])
                 break;
             }
 
-			// Read locator
-			//device->readLocator();
             Sleep(50);
         }
         PrintDeviceStatus("Poll loop exited", device);
