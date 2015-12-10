@@ -5,9 +5,7 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "SpheroLib.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class NOTWHATEVER_API USpheroLib : public UBlueprintFunctionLibrary
 {
@@ -28,6 +26,7 @@ public:
 
 	static struct FVector vecRotation; // rotation measured by sphero
 	static struct FVector vecRotationRelative; // initial rotation. difference -> rotation since program start
-
+	
 	
 };
+

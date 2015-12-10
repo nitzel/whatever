@@ -3,7 +3,10 @@
 #include "NotWhatever.h"
 #include "SpheroLib.h"
 
-USpheroLib::USpheroLib() 
+FVector USpheroLib::vecRotation = FVector(0,0,0); // rotation measured by sphero
+FVector USpheroLib::vecRotationRelative = FVector(0, 0, 0);; // initial rotation. difference -> rotation since program start
+
+USpheroLib::USpheroLib()
 {
 	// TODO: init here
 	// connect to sphero
@@ -11,7 +14,7 @@ USpheroLib::USpheroLib()
 	vecRotationRelative = FVector(0, 0, 0);
 }
 
-USpheroLib::~USpheroLib() 
+USpheroLib::~USpheroLib()
 {
 	// TODO: disconnect/ uninitialize
 }
@@ -24,3 +27,4 @@ FVector USpheroLib::getRotationVector()
 {
 	return vecRotation - vecRotationRelative;
 }
+
