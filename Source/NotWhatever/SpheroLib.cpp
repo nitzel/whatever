@@ -3,23 +3,31 @@
 #include "NotWhatever.h"
 #include "SpheroLib.h"
 
-FVector USpheroLib::vecRotation = FVector(0,0,0); // rotation measured by sphero
-FVector USpheroLib::vecRotationRelative = FVector(0, 0, 0);; // initial rotation. difference -> rotation since program start
+// redefine & init static variables
+USpheroLib * USpheroLib::pSelf = nullptr;
+//FVector USpheroLib::vecRotation = FVector(0, 0, 0); 
+//FVector USpheroLib::vecRotationOld = FVector(0,0,0);
+//FVector USpheroLib::vecRotationRelative = FVector(0, 0, 0); 
 
-USpheroLib::USpheroLib()
+USpheroLib::USpheroLib() 
 {
-	// TODO: init here
-	// connect to sphero
-
-	vecRotationRelative = FVector(0, 0, 0);
+	// todo connect to sphero
+}
+USpheroLib::~USpheroLib() 
+{
+	// todo disconnect from sphero
 }
 
-USpheroLib::~USpheroLib()
+USpheroLib * USpheroLib::get() 
 {
-	// TODO: disconnect/ uninitialize
+	if (pSelf == nullptr) // ptr not set yet
+		pSelf = new USpheroLib(); // created it
+	return pSelf; // return ptr
 }
+
 void USpheroLib::updateData()
 {
+	// todo get data from sphero
 	vecRotation += FVector(1, 0, 0);
 }
 
@@ -28,3 +36,13 @@ FVector USpheroLib::getRotationVector()
 	return vecRotation - vecRotationRelative;
 }
 
+FVector USpheroLib::getRotationVectorDelta()
+{
+	return vecRotation - vecRotationOld;
+}
+
+void USpheroLib::resetRotationVector()
+{
+	updateData(); // todo, good idea to use it here?
+	vecRotationRelative = vecRotation;
+}

@@ -2,31 +2,60 @@
 
 #pragma once
 
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Object.h"
 #include "SpheroLib.generated.h"
 
+/**
+This class acts as an interface between a Sphero Ball and the Game Objects.
+On creation it connects, 
 
+*/
 UCLASS()
-class NOTWHATEVER_API USpheroLib : public UBlueprintFunctionLibrary
+class NOTWHATEVER_API USpheroLib : public UObject
 {
 	GENERATED_BODY()
-
 public:
 	USpheroLib();
 	~USpheroLib();
-	
-	static UFUNCTION(BlueprintCallable, Category = "Sphero")
+
+	/**
+	Return pointer to static instance or initiate one if it does not exist yet
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Sphero")
+	static USpheroLib * get();
+
+	/**
+	Update the locally stored data about the sphero by reading in the messages
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Sphero")
 	void updateData();
 
-	static UFUNCTION(BlueprintCallable, Category = "Sphero")
+	/**
+	Return the rotation-vector of the sphero to the user
+	*/
+	UFUNCTION(BlueprintPure, Category = "Sphero")
 	FVector getRotationVector();
 
-	static UFUNCTION(BlueprintCallable, Category = "Sphero")
-	int schnappi(int a) { return 7 * a; };
+	/**
+	Return the rotation-vector of the sphero to the user
+	*/
+	UFUNCTION(BlueprintPure, Category = "Sphero")
+	FVector getRotationVectorDelta();
 
-	static struct FVector vecRotation; // rotation measured by sphero
-	static struct FVector vecRotationRelative; // initial rotation. difference -> rotation since program start
-	
-	
+	/**
+	Resets the relative rotation vector to 0.
+	*/
+	UFUNCTION(BlueprintCallable, Category = "Sphero")
+	void resetRotationVector();
+
+protected:
+	// class variables
+	static class USpheroLib * pSelf;
+	// sphero variables
+	struct FVector vecRotation; // rotation measured by sphero
+	struct FVector vecRotationOld; // rotation measured by sphero before the last updateData call
+	struct FVector vecRotationRelative; // initial rotation. difference -> rotation since program start
+
+
 };
 
