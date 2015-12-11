@@ -3,26 +3,47 @@
 #include "NotWhatever.h"
 #include "SpheroLib.h"
 
-// redefine & init static variables
-USpheroLib * USpheroLib::pSelf = nullptr;
-//FVector USpheroLib::vecRotation = FVector(0, 0, 0); 
-//FVector USpheroLib::vecRotationOld = FVector(0,0,0);
-//FVector USpheroLib::vecRotationRelative = FVector(0, 0, 0); 
 
-USpheroLib::USpheroLib() 
+// Sets default values for this component's properties
+USpheroLib::USpheroLib()
 {
-	// todo connect to sphero
-}
-USpheroLib::~USpheroLib() 
-{
-	// todo disconnect from sphero
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	bWantsBeginPlay = true;
+	PrimaryComponentTick.bCanEverTick = true;
+
+	// ...
+
+
+	// TODO init sphero ball here
 }
 
-USpheroLib * USpheroLib::get() 
+
+// destructor
+USpheroLib::~USpheroLib()
 {
-	if (pSelf == nullptr) // ptr not set yet
-		pSelf = new USpheroLib(); // created it
-	return pSelf; // return ptr
+	// TODO release sphero ball here
+}
+
+
+// Called when the game starts
+void USpheroLib::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// reset sphero orientation
+	resetRotationVector();
+
+
+}
+
+
+// Called every frame
+void USpheroLib::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
 }
 
 void USpheroLib::updateData()
@@ -46,3 +67,4 @@ void USpheroLib::resetRotationVector()
 	updateData(); // todo, good idea to use it here?
 	vecRotationRelative = vecRotation;
 }
+
