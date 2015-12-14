@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "SpheroRAWItf.h"
 #include "SpheroLib.generated.h"
 
 
@@ -18,6 +19,11 @@ public:
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	/*Called from AActor::EndPlay only if bHasBegunPlay is true
+		*/
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -52,5 +58,8 @@ public:
 	struct FVector vecRotation; // rotation measured by sphero
 	struct FVector vecRotationOld; // rotation measured by sphero before the last updateData call
 	struct FVector vecRotationRelative; // initial rotation. difference -> rotation since program start
+
+	ISpheroDevice *device;
+
 
 };

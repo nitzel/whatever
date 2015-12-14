@@ -5,7 +5,6 @@
 
 #include "stdafx.h"
 #include <windows.h>
-#include "SpheroRAWItf.h"
 
 #include <string>
 #include <iostream>
@@ -17,24 +16,20 @@ using namespace std;
 
 
 void PrintDeviceStatus(string action, ISpheroDevice* device) {
-	cout << "Action: " << action << " Result: ";
 
 	if (device == nullptr) {
-		cout << "Error - Sphero handle is invalid" << endl;
+		UE_LOG(LogTemp, Warning, TEXT("Error - Sphero handle is invalid"));
 		return;
 	}
-
 	switch (device->state()) {
-	case SpheroState_None: { cout << "SpheroRAW not initialized" << endl; break; }
-	case SpheroState_Error_BluetoothError: { cout << "Error - Couldn't initialize Bluetooth stack" << endl; break; }
-	case SpheroState_Error_BluetoothUnavailable: { cout << "Error - No valid Bluetooth adapter found" << endl; break; }
-	case SpheroState_Error_NotPaired: { cout << "Error - Specified Sphero not Paired" << endl; break; }
-	case SpheroState_Error_ConnectionFailed: { cout << "Error - Connecting failed" << endl; break; }
-	case SpheroState_Disconnected: { cout << "Sphero disconnected" << endl; break; }
-	case SpheroState_Connected: { cout << "Sphero connected" << endl; break; }
+	case SpheroState_None: {  UE_LOG(LogTemp, Warning, TEXT("Sphero SpheroRAW not initialized")); break; }
+	case SpheroState_Error_BluetoothError:  { UE_LOG(LogTemp, Warning, TEXT("Error - Couldn't initialize Bluetooth stack")); break; }
+	case SpheroState_Error_BluetoothUnavailable:  { UE_LOG(LogTemp, Warning, TEXT("Error - No valid Bluetooth adapter found")); break; }
+	case SpheroState_Error_NotPaired:  { UE_LOG(LogTemp, Warning, TEXT("Error - Specified Sphero not Paired")); break; }
+	case SpheroState_Error_ConnectionFailed:  { UE_LOG(LogTemp, Warning, TEXT("Error - Connecting failed")); break; }
+	case SpheroState_Disconnected:  { UE_LOG(LogTemp, Warning, TEXT("Sphero disconnected")); break; }
+	case SpheroState_Connected:  { UE_LOG(LogTemp, Warning, TEXT("Sphero connected")); break; }
 	}
-
-	cout << endl;
 }
 
 void OrbBasicAppendLine(ISpheroDevice* device, std::string lineText) {
@@ -45,7 +40,6 @@ void OrbBasicAppendLine(ISpheroDevice* device, std::string lineText) {
 
 //======================================================================================================================
 
-ISpheroDevice *device;
 
 // Sets default values for this component's properties
 USpheroLib::USpheroLib()
@@ -55,12 +49,29 @@ USpheroLib::USpheroLib()
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
+	UE_LOG(LogTemp, Warning, TEXT("qsdf creator"));
+}
+
+
+// destructor
+USpheroLib::~USpheroLib()
+{
+	UE_LOG(LogTemp, Warning, TEXT("qsdf destructor"));
+}
+
+
+// Called when the game starts
+void USpheroLib::BeginPlay()
+{
+	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("qsdf begin play"));
+
 
 	// Create device 
 	device = SpheroRAW_Create("Sphero-GYY");;
 
 	while (!(device->state() == SpheroState_Connected)) {
-		// Connect 
+	 //Connect 
 		device->connect();
 		PrintDeviceStatus("Connecting", device);
 		device->abortOrbBasicProgram();
@@ -98,14 +109,17 @@ USpheroLib::USpheroLib()
 		device->setDataStreaming(cp);
 	}
 	else {
-		cout << "not connected anymore" << endl;
+		UE_LOG(LogTemp, Warning, TEXT("Not Connected anymore"));
 	}
+
+
+	// reset sphero orientation
+	resetRotationVector();
 }
 
-
-// destructor
-USpheroLib::~USpheroLib()
-{
+void USpheroLib::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+	Super::EndPlay(EndPlayReason);
+	UE_LOG(LogTemp, Warning, TEXT("qsdf end play"));
 	// Disconnect 
 	device->disconnect();
 	PrintDeviceStatus("Disconnect", device);
@@ -116,29 +130,17 @@ USpheroLib::~USpheroLib()
 	SpheroRAW_Destroy(device); device = nullptr;
 }
 
-
-// Called when the game starts
-void USpheroLib::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// reset sphero orientation
-	resetRotationVector();
-
-
-}
-
-
 // Called every frame
 void USpheroLib::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	UE_LOG(LogTemp, Warning, TEXT("qsdf Tick"));
 }
 
 void USpheroLib::updateData()
 {
+	UE_LOG(LogTemp, Warning, TEXT("qsdf update"));
+	vecRotationOld = vecRotation;
 	if (device->state() == SpheroState_Connected) {
 		std::vector<SpheroMessage> messages = device->receive();
 		for (auto message : messages) {
@@ -173,11 +175,6 @@ void USpheroLib::updateData()
 			}
 		}
 	}
-
-
-
-	// todo get data from sphero
-	vecRotation += FVector(1, 0, 0);
 }
 
 FVector USpheroLib::getRotationVector()
