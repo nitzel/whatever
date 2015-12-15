@@ -53,6 +53,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sphero")
 		void resetRotationVector();
 
+	// sphero connection functions
+	void Connect();
+	void Disconnect();
+	UFUNCTION(BlueprintCallable, Category = "Sphero")
+	void Reconnect();
+
 	//protected:
 	// sphero variables
 	struct FVector vecRotation; // rotation measured by sphero

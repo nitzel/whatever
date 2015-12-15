@@ -60,22 +60,46 @@ USpheroLib::~USpheroLib()
 }
 
 
+void USpheroLib::Connect() {
+	// Create device 
+	device = SpheroRAW_Create("Sphero-GYY");;
+
+	//while (device->state() != SpheroState_Connected) {
+		//Connect 
+		device->connect();
+		PrintDeviceStatus("Connecting", device);
+		device->abortOrbBasicProgram();
+		//Sleep(1000);
+	//}
+}
+
+void USpheroLib::Disconnect() {
+	UE_LOG(LogTemp, Warning, TEXT("qsdf end play"));
+	if (device == nullptr)
+		return;
+	// Disconnect 
+	device->disconnect();
+	PrintDeviceStatus("Disconnect", device);
+
+	//TODO should we remove backlight/datastream and stabilization ?
+
+	// Destroy device 
+	SpheroRAW_Destroy(device); device = nullptr;
+}
+
+
+void USpheroLib::Reconnect() {
+	Disconnect();
+	Sleep(1000);
+	Connect();
+}
+
 // Called when the game starts
 void USpheroLib::BeginPlay()
 {
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("qsdf begin play"));
-
-
-	// Create device 
-	device = SpheroRAW_Create("Sphero-GYY");;
-
-	while (!(device->state() == SpheroState_Connected)) {
-	 //Connect 
-		device->connect();
-		PrintDeviceStatus("Connecting", device);
-		device->abortOrbBasicProgram();
-	}
+	Connect();
 
 	if (device->state() == SpheroState_Connected) {
 
@@ -119,15 +143,7 @@ void USpheroLib::BeginPlay()
 
 void USpheroLib::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	Super::EndPlay(EndPlayReason);
-	UE_LOG(LogTemp, Warning, TEXT("qsdf end play"));
-	// Disconnect 
-	device->disconnect();
-	PrintDeviceStatus("Disconnect", device);
-
-	//TODO should we remove backlight/datastream and stabilization ?
-
-	// Destroy device 
-	SpheroRAW_Destroy(device); device = nullptr;
+	Disconnect();
 }
 
 // Called every frame
@@ -176,6 +192,7 @@ void USpheroLib::updateData()
 		}
 	}
 }
+
 
 FVector USpheroLib::getRotationVector()
 {
