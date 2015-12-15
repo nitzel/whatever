@@ -194,6 +194,13 @@ void USpheroLib::updateData()
 }
 
 
+bool USpheroLib::isSpheroConnected() {
+	if (device != nullptr) {
+		return (device->state() == SpheroState_Connected);
+	}
+	return false;
+}
+
 FVector USpheroLib::getRotationVector()
 {
 	return vecRotation - vecRotationRelative;

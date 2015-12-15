@@ -53,6 +53,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Sphero")
 		void resetRotationVector();
 
+	/**
+	Resets the relative rotation vector to 0.
+	*/
+	UFUNCTION(BlueprintPure, Category = "Sphero")
+		bool isSpheroConnected();
+
+
 	// sphero connection functions
 	void Connect();
 	void Disconnect();
