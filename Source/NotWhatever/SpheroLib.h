@@ -6,7 +6,10 @@
 #include "SpheroRAWItf.h"
 #include "SpheroLib.generated.h"
 
-
+/**
+This class communicates with the SpheroBall (initiates and ends communication) and offers methods to access the data it supplies.
+Till now, that is only the euclidean rotation vector.
+*/
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class NOTWHATEVER_API USpheroLib : public UActorComponent
 {
@@ -20,8 +23,9 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	/*Called from AActor::EndPlay only if bHasBegunPlay is true
-		*/
+	/**
+	End Play -> disconnect
+	*/
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
 
 
@@ -54,7 +58,7 @@ public:
 		void resetRotationVector();
 
 	/**
-	Resets the relative rotation vector to 0.
+	Returns true if the sphero device says it is connected and false otherwise.
 	*/
 	UFUNCTION(BlueprintPure, Category = "Sphero")
 		bool isSpheroConnected();

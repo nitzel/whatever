@@ -150,12 +150,10 @@ void USpheroLib::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 void USpheroLib::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	UE_LOG(LogTemp, Warning, TEXT("qsdf Tick"));
 }
 
 void USpheroLib::updateData()
 {
-	UE_LOG(LogTemp, Warning, TEXT("qsdf update"));
 	vecRotationOld = vecRotation;
 	if (device->state() == SpheroState_Connected) {
 		std::vector<SpheroMessage> messages = device->receive();
