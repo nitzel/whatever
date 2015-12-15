@@ -2,60 +2,64 @@
 
 #pragma once
 
-#include "Object.h"
+#include "Components/ActorComponent.h"
+#include "SpheroRAWItf.h"
 #include "SpheroLib.generated.h"
 
-/**
-This class acts as an interface between a Sphero Ball and the Game Objects.
-On creation it connects, 
 
-*/
-UCLASS()
-class NOTWHATEVER_API USpheroLib : public UObject
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class NOTWHATEVER_API USpheroLib : public UActorComponent
 {
 	GENERATED_BODY()
+
 public:
+	// Sets default values for this component's properties
 	USpheroLib();
 	~USpheroLib();
 
-	/**
-	Return pointer to static instance or initiate one if it does not exist yet
-	*/
-	UFUNCTION(BlueprintCallable, Category = "Sphero")
-	static USpheroLib * get();
+	// Called when the game starts
+	virtual void BeginPlay() override;
+
+	/*Called from AActor::EndPlay only if bHasBegunPlay is true
+		*/
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason);
+
+
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 
 	/**
 	Update the locally stored data about the sphero by reading in the messages
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Sphero")
-	void updateData();
+		void updateData();
 
 	/**
 	Return the rotation-vector of the sphero to the user
 	*/
 	UFUNCTION(BlueprintPure, Category = "Sphero")
-	FVector getRotationVector();
+		FVector getRotationVector();
 
 	/**
 	Return the rotation-vector of the sphero to the user
 	*/
 	UFUNCTION(BlueprintPure, Category = "Sphero")
-	FVector getRotationVectorDelta();
+		FVector getRotationVectorDelta();
 
 	/**
 	Resets the relative rotation vector to 0.
 	*/
 	UFUNCTION(BlueprintCallable, Category = "Sphero")
-	void resetRotationVector();
+		void resetRotationVector();
 
-protected:
-	// class variables
-	static class USpheroLib * pSelf;
+	//protected:
 	// sphero variables
 	struct FVector vecRotation; // rotation measured by sphero
 	struct FVector vecRotationOld; // rotation measured by sphero before the last updateData call
 	struct FVector vecRotationRelative; // initial rotation. difference -> rotation since program start
 
+	ISpheroDevice *device;
+
 
 };
-
