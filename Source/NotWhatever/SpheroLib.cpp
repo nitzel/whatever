@@ -189,6 +189,18 @@ void USpheroLib::updateData()
 			}
 		}
 	}
+
+	// do avoid jumps when rotating over 180degrees.
+	FVector d = getRotationVectorDelta(); //delta
+	for (int i = 0; i < 3; i++) {
+		if (d[i]>120) { // huge jump, probably - one direction
+			vecRotation[i] = vecRotation[i] - 180;
+		}
+		else if (d[i]<-120) { // huge jump, probably - other direction
+			vecRotation[i] = vecRotation[i] + 180;
+		}
+	}
+
 }
 
 
