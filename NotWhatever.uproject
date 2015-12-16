@@ -13,5 +13,8 @@
 				"CoreUObject"
 			]
 		}
+	],
+	"TargetPlatforms": [
+		"WindowsNoEditor"
 	]
 }
