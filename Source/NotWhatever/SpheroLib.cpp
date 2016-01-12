@@ -49,14 +49,14 @@ USpheroLib::USpheroLib()
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
 
-	UE_LOG(LogTemp, Warning, TEXT("qsdf creator"));
+	UE_LOG(LogTemp, Warning, TEXT("WhateverLog - creator"));
 }
 
 
 // destructor
 USpheroLib::~USpheroLib()
 {
-	UE_LOG(LogTemp, Warning, TEXT("qsdf destructor"));
+	UE_LOG(LogTemp, Warning, TEXT("WhateverLog - destructor"));
 }
 
 
@@ -74,7 +74,7 @@ void USpheroLib::Connect() {
 }
 
 void USpheroLib::Disconnect() {
-	UE_LOG(LogTemp, Warning, TEXT("qsdf end play"));
+	UE_LOG(LogTemp, Warning, TEXT("WhateverLog - end play"));
 	if (device == nullptr)
 		return;
 	// Disconnect 
@@ -98,7 +98,7 @@ void USpheroLib::Reconnect() {
 void USpheroLib::BeginPlay()
 {
 	Super::BeginPlay();
-	UE_LOG(LogTemp, Warning, TEXT("qsdf begin play"));
+	UE_LOG(LogTemp, Warning, TEXT("WhateverLog - begin play"));
 	Connect();
 
 	if (device->state() == SpheroState_Connected) {
